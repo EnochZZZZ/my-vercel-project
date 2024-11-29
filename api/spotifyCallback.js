@@ -8,15 +8,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Authorization code is missing" });
     }
 
+    const params = new URLSearchParams();
+    params.append("grant_type", "authorization_code");
+    params.append("code", code);
+    params.append("redirect_uri", "https://my-vercel-project-teal.vercel.app/api/spotifyCallback");
+    params.append("client_id", process.env.SPOTIFY_CLIENT_ID);
+    params.append("client_secret", process.env.SPOTIFY_CLIENT_SECRET);
+
     // Spotify Token API 请求
-    const response = await axios.post("https://accounts.spotify.com/api/token", null, {
-      params: {
-        grant_type: "client_credentials",
-        code,
-        redirect_uri: "https://my-vercel-project-teal.vercel.app/api/spotifyCallback",
-        client_id: process.env.SPOTIFY_CLIENT_ID, // 从环境变量中读取
-        client_secret: process.env.SPOTIFY_CLIENT_SECRET, // 从环境变量中读取
-      },
+    const response = await axios.post("https://accounts.spotify.com/api/token", params.toString(), {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
