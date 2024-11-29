@@ -11,7 +11,7 @@ export default async function handler(req, res) {
         // Spotify Token API 请求
         const response = await axios.post("https://accounts.spotify.com/api/token", null, {
             params: {
-                grant_type: "authorization_code",
+                grant_type: "client_credentials",
                 code,
                 redirect_uri: "https://my-vercel-project-teal.vercel.app/api/spotifyCallback",
                 client_id: process.env.SPOTIFY_CLIENT_ID, // 从环境变量中读取
