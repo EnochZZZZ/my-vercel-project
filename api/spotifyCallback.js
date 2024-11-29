@@ -2,7 +2,7 @@ import axios from "axios";
 
 export default async function handler(req, res) {
   try {
-    const { code } = req.query;
+    const { code } = req.query || "dummy-code-for-testing";
 
     if (!code) {
       return res.status(400).json({ error: "Authorization code is missing" });
