@@ -1,33 +1,33 @@
-import axios from "axios";
+import axios from 'axios';
 
 export default async function handler(req, res) {
-    try {
-        const { code } = req.query;
+  const client_id = '7caedb65ce7d4c909e5ce47fb0895357'; // Replace with your Spotify Client ID
+  const client_secret = '83e0ec7c3f04411a890bf109a124d796'; // Replace with your Spotify Client Secret
 
-        if (!code) {
-            return res.status(400).json({ error: "Authorization code is missing" });
-        }
+  // Spotify token endpoint
+  const tokenUrl = 'https://accounts.spotify.com/api/token';
 
-        // Spotify Token API 请求
-        const response = await axios.post("https://accounts.spotify.com/api/token", null, {
-            params: {
-                grant_type: "client_credentials",
-                code,
-                redirect_uri: "https://my-vercel-project-teal.vercel.app/api/spotifyCallback",
-                client_id: process.env.SPOTIFY_CLIENT_ID, // 从环境变量中读取
-                client_secret: process.env.SPOTIFY_CLIENT_SECRET, // 从环境变量中读取
-            },
-            headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
-            },
-        });
+  // Base64 encode client ID and client secret
+  const authHeader = Buffer.from(`${client_id}:${client_secret}`).toString('base64');
 
-        const { access_token, refresh_token } = response.data;
+  try {
+    const response = await axios.post(
+      tokenUrl,
+      new URLSearchParams({
+        grant_type: 'client_credentials',
+      }),
+      {
+        headers: {
+          Authorization: `Basic ${authHeader}`,
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      }
+    );
 
-        // 返回令牌信息
-        res.status(200).json({ access_token, refresh_token });
-    } catch (error) {
-        console.error("Spotify Callback Error:", error.response?.data || error.message);
-        res.status(500).json({ error: "Internal Server Error" });
-    }
+    // Respond with the access token and related details
+    res.status(200).json(response.data);
+  } catch (error) {
+    console.error('Error fetching Spotify access token:', error.response?.data || error.message);
+    res.status(500).json({ error: 'Failed to fetch Spotify access token' });
+  }
 }
